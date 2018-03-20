@@ -13,7 +13,7 @@ Unfortunately I have to use python 2. I am having issues with python 3 on my com
 
 Here are some descriptions of the other files and folders in the submission:
 
-* ```feature_generation.py``` -- this includes the Features class which I use to construct the features to train the classifiers on, and the features to test the models on. An Features instance is created, and features are added by doing something like Features().AddBigrams, or Features.AddLexicons(...).
+* ```feature_generation.py``` -- this includes the Features class which I use to construct the features to train the classifiers on, and the features to test the models on. A Features instance is created, and features are added by doing something like Features().AddBigrams, or Features.AddLexicons(...).
 
 * ```preprocess.py``` -- this includes all of the preprocessing methods. In the main classification.py file I pass the preprocess_pipeline() method to the data, which can be found in this file.
 
