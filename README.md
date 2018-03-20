@@ -4,6 +4,7 @@ Sentiment classifier for twitter
 # Important points for marker
 
 I use GloVe Twitter word embeddings, which can be found here: https://nlp.stanford.edu/projects/glove/
+
 I used the download: glove.twitter.27B.zip
 
 Unfortunately I have to use python 2. I am having issues with python 3 on my computer.
