@@ -9,6 +9,8 @@ I used the download: glove.twitter.27B.zip
 
 Unfortunately I have to use python 2. I am having issues with python 3 on my computer.
 
+I use ```scattertext``` inside ```utils.py```. If you don't have this downloaded, then please download it using ```pip install scattertext```. (It's very quick!) 
+
 # Files in repo
 
 Here are some descriptions of the other files and folders in the submission:
