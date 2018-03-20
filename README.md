@@ -24,7 +24,7 @@ Here are some descriptions of the other files and folders in the submission:
 * ```pickled_data``` directory -- this includes a number of serialised objects that took 15 minutes or more to create. These are the positive and negative lexicons sparse matrix from the training set, the glove embeddings for the training set, and some other objects. I read these in at the beginning of the ```classification.py``` file.
 
 
-## classification.py
+## ```classification.py```
 
 Here I provide a quick run through the this python code:
 
