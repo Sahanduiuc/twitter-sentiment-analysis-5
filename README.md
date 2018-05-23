@@ -3,25 +3,22 @@ Sentiment classifier for twitter
 
 # Important points for marker
 
-I use GloVe Twitter word embeddings, which can be found here: https://nlp.stanford.edu/projects/glove/
+I use word2vec Twitter embeddings, pretrained on 400m tweets, which can be found here: https://www.fredericgodin.com/software/
 
-I used the download: glove.twitter.27B.zip
-
-Unfortunately I have to use python 2. I am having issues with python 3 on my computer.
-
-I use ```scattertext``` inside ```utils.py```. If you don't have this downloaded, then please download it using ```pip install scattertext```. (It's very quick!) 
+This is in python 2.
 
 # Files in repo
 
 Here are some descriptions of the other files and folders in the submission:
 
-* ```feature_generation.py``` -- this includes the Features class which I use to construct the features to train the classifiers on, and the features to test the models on. A Features instance is created, and features are added by doing something like Features().AddBigrams, or Features.AddLexicons(...). This can be seen in action when I train the models in the appropriate section of ```classification.py```.
+* ```feature_generation.py``` -- this includes the `Features` class which I use to construct the features to train the classifiers on, and the features to test the models on. A Features instance is created, and features are added by doing something like Features.AddBigrams, or Features.AddLexicons(...), or Features.AddEmbeddings(...). This can be seen in action in the `create_features` method in ```classification.py```.
 
-* ```preprocess.py``` -- this includes all of the preprocessing methods. In the main classification.py file I pass the preprocess_pipeline() method to the data, which can be found in this file.
+* ```preprocess.py``` -- this includes all of the preprocessing methods. This is used in the original report, but is no longer in the code.
 
-* ```utils.py``` -- this includes various methods that are used in feature_generation.py. These will most likely not be initiated when you run my code, as they are used before objects have been pickled. (I have provided pickled objects, as explained below.)
+* ```create_embeddings.py``` -- this is used to create the feature vectors on my data from the loaded word embeddings, with the results being pickled as `pickled_data/data_embeddings.pkl`, which is a dictionary with keys as filenames (i.e. training or testing data), and values as the feature vectors. The feature generation makes use of these pickled embeddings to add word embeddings as features in the classifier.
 
-* ```pickled_data``` directory -- this includes a number of serialised objects that took 15 minutes or more to create. These are the positive and negative lexicons sparse matrix from the training set, the glove embeddings for the training set, and some other objects. I read these in at the beginning of the ```classification.py``` file.
+* ```pickled_data``` directory -- this includes:
+  *  kwkww
 
 
 ## ```classification.py```
