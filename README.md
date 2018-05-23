@@ -38,10 +38,8 @@ Here are some descriptions of the other files and folders in the submission:
 
 * ```evaluation.py``` -- computes the macro-averaged F1-score for given test set results.
 
-* ```pickled_data``` directory -- this includes:
-  *  `data_embeddings.pkl`: described above.
+* ```pickled_data``` directory -- prior to running `create_embeddings.py`, this includes:
   *  `top_neg_words.pkl` and `top_pos_words.pkl`: the pre-identified top words most indicative of a positive or negative tweet. These are used in the feature generation class to add them as features.
-  *  `tweetids.pkl` and `tweetgts.pkl`: dictionaries similar to `data_embeddings.pkl`, except with the tweet IDs and tweet sentiments instead of the embeddings.
 
 ## ```classification.py```
 
