@@ -1,5 +1,5 @@
 # twitter-sentiment-analysis
-Sentiment classifier for twitter
+Sentiment triclass classifier for twitter, with predictions of positive, negative, or neutral.
 
 ### Overview
 
@@ -8,6 +8,8 @@ Training data: 45,101 tweets (tab-separated as tweetID--sentiment--text)
 Test data: 3,531 tweets (same format)
 
 Best classifier: Logistic regression with word2vec embeddings and TF-IDF unigrams as features.
+
+Corresponding result: macro-averaged F1-score of 0.649.
 
 
 # Important points for marker
