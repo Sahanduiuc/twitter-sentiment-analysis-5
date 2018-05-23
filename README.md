@@ -1,6 +1,15 @@
 # twitter-sentiment-analysis
 Sentiment classifier for twitter
 
+### Overview
+
+Training data: 45,101 tweets (tab-separated as tweetID--sentiment--text)
+
+Test data: 3,531 tweets (same format)
+
+Best classifier: Logistic regression with word2vec embeddings and TF-IDF unigrams as features.
+
+
 # Important points for marker
 
 I use word2vec Twitter embeddings, pretrained on 400m tweets, which can be found here: https://www.fredericgodin.com/software/
