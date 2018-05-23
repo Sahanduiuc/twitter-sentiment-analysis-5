@@ -28,7 +28,12 @@ Here are some descriptions of the other files and folders in the submission:
 
 Here I provide a quick run through the this python code:
 
-1. Read in train and dev sets. (Assumes the data is in the current working directory.) Produce the labels and the IDs as well.
-2. Preprocess the train and dev sets.
-3. Read in the serialised objects.
-4. Train and test classifiers!
+1. Load the pickled `top_pos_words` and `top_neg_words` that can be used if lexicons are a desired feature.
+
+2. Read the training and test data.
+
+3. Define `features`, which is a list of lists of features (each sublist is a list of the features desired in a given classifier).
+
+4. Define `classifiers`, which is a list of classifiers as strings. These can be "maximum entropy" (logistic regression), "svm" (support vector machine), "nb" (naive Bayes), or "rf" (random forests). 
+
+5. Loop through the classifiers. For each classifier, loop through the feature sets, and fit and predict for each set, outputting the result.
