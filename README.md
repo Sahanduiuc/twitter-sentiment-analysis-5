@@ -18,6 +18,14 @@ I use word2vec Twitter embeddings, pretrained on 400m tweets, which can be found
 
 This is in python 2.
 
+### Usage instructions
+
+1. In this repo, download the pre-trained word embeddings using the link above.
+
+2. Run `create_embeddings.py`. This will store the embeddings, tweet IDs, and tweet sentiment data in the `pickled_data` directory.
+
+3. Run `classification.py`. This will run the best classifier for this dataset. You can modify the classifier quite easily in this file.
+
 # Files in repo
 
 Here are some descriptions of the other files and folders in the submission:
