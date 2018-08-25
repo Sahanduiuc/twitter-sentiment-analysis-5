@@ -1,148 +1,157 @@
-import numpy as np 
-import sys 
-import pickle 
-from utils import * 
-from nltk.tokenize import word_tokenize
-import timeit
+import numpy as np
+import gensim
+import itertools
 
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.pipeline import Pipeline, FeatureUnion
 
-from scipy import sparse
-from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+import nltk
 
-class Features:
-    def __init__(self, X, y, X_test, y_test, is_train=True):
-        self.X = X
-        self.X_test = X_test 
-        self.y = y
-        self.y_test = y_test
-        self.is_train = is_train
-        self.features = None
 
-    def AddUnigrams(self):
-        vec = CountVectorizer(ngram_range=(1, 1))
-        X_unigrams = self.X
-        X_test_unigrams = self.X_test 
-        vec.fit(X_unigrams)
-        unigrams = vec.transform(X_unigrams)
-        test_unigrams = vec.transform(X_test_unigrams)
-        if self.features == None:
-            if self.is_train:
-                self.features = unigrams 
-            else:
-                self.features = test_unigrams
-        else:
-            if self.is_train:
-                self.features = sparse.hstack((self.features, unigrams))
-            else:
-                self.features = sparse.hstack((self.features, test_unigrams))
+WORD2VEC_PATH = "data/GoogleNews-vectors-negative300.bin.gz"
+TOP_N = 100
 
-    def AddBigrams(self):
-        vec = CountVectorizer(ngram_range=(1, 2))
-        X_bigrams = self.X 
-        X_test_bigrams = self.X_test 
-        vec.fit(X_bigrams) 
-        bigrams = vec.transform(X_bigrams)
-        test_bigrams = vec.transform(X_test_bigrams)
-        if self.features == None:
-            if self.is_train:				
-                self.features = bigrams
-            else:
-                self.features = test_bigrams
-        else:
-            if self.is_train:
-                self.features = sparse.hstack((self.features, bigrams))
-            else:
-                self.features = sparse.hstack((self.features, test_bigrams))
 
-    def AddTfidfUnigrams(self):
-        vec = TfidfVectorizer(ngram_range=(1, 1))
-        X_unigrams = self.X
-        X_test_unigrams = self.X_test
-        vec.fit(X_unigrams)
-        unigrams = vec.transform(X_unigrams)
-        test_unigrams = vec.transform(X_test_unigrams)
-        if self.features == None:
-            if self.is_train:
-                self.features = unigrams
-            else:
-                self.features = test_unigrams
-        else:
-            if self.is_train:
-                self.features = sparse.hstack((self.features, unigrams))
-            else:
-                self.features = sparse.hstack((self.features, test_unigrams))
+def join_lists(list_of_lists):
+    return list(itertools.chain.from_iterable(list_of_lists))
 
-    def AddTfidfBigrams(self):
-        vec = TfidfVectorizer(ngram_range=(1, 2))
-        X_bigrams = self.X
-        X_test_bigrams = self.X_test
-        vec.fit(X_bigrams)
-        bigrams = vec.transform(X_bigrams)
-        test_bigrams = vec.transform(X_test_bigrams)
-            if self.features == None:
-                if self.is_train:				
-                    self.features = bigrams
-                else:
-                    self.features = test_bigrams
-            else:
-                if self.is_train:
-                    self.features = sparse.hstack((self.features, bigrams))
-                else:
-                    self.features = sparse.hstack((self.features, test_bigrams))
 
-    def AddLexicons(self, top_n, top_pos_words, top_neg_words, pickled_path=None):
-        lexicons = None
-        if pickled_path == None:
-            if self.is_train:
-                pos_word_count = np.zeros((len(self.X), len(top_pos_words)))
-                neg_word_count = np.zeros((len(self.X), len(top_neg_words)))
-                for i in range(len(self.X)):
-                    tweet = word_tokenize(self.X[i])
-                    for word in tweet:
-                        if word in top_pos_words:
-                            idx = top_pos_words[word]
-                            pos_word_count[i][idx] += 1
-                        if word in top_neg_words:
-                            idx = top_neg_words[word]
-                            neg_word_count[i][idx] += 1	
-            else:
-                pos_word_count = np.zeros((len(self.X_test), len(top_pos_words)))
-                neg_word_count = np.zeros((len(self.X_test), len(top_neg_words)))
-                    for i in range(len(self.X_test)):
-                        tweet = word_tokenize(self.X_test[i])
-                        for word in tweet:
-                            if word in top_pos_words:
-                                idx = top_pos_words[word]
-                                pos_word_count[i][idx] +=1
-                            if word in top_neg_words:
-                                idx = top_neg_words[word]
-                                neg_word_count[i][idx] += 1
-            pos_lexicons = np.asarray(pos_word_count)
-            neg_lexicons = np.asarray(neg_word_count)
-            lexicons = np.concatenate((pos_lexicons, neg_lexicons), axis=1)
-            lexicons = sparse.csr_matrix(lexicons)
-        else:
-            with open(pickled_path, "r") as f:
-                lexicons = pickle.load(f)
-            if self.features == None:
-                self.features = lexicons
-            else:
-                self.features = sparse.hstack((self.features, lexicons))
+def feature_pipeline(X, X_train, y_train, word2vec=True, lexicons=True, unigrams=True, pos_tags=True,
+                        bigrams=True, tfidf_unigrams=True, tfidf_bigrams=True):
+    transformer = []
+    if word2vec:
+        transformer.append(("w2v", Word2VecEmbeddingsTransformer(WORD2VEC_PATH)))
+    if lexicons:
+        transformer.append(("lex", LexiconsTransformer(X_train, y_train, TOP_N)))
+    if unigrams:
+        transformer.append(("unicount", CountVectorizer(ngram_range=(1, 1))))
+    if bigrams:
+        transformer.append(("bicount", CountVectorizer(ngram_range=(1, 2))))
+    if tfidf_unigrams:
+        transformer.append(("tfidf_uni", TfidfVectorizer(ngram_range=(1, 1))))
+    if tfidf_bigrams:
+        transformer.append(("tfidf_bi", TfidfVectorizer(ngram_range=(1, 2))))
+    if pos_tags:
+        transformer.append(("pos", POSTagsTransformer()))
 
-    def AddEmbeddings(self, data_type):
-        with open("pickled_data/data_embeddings.pkl", "rb") as f:
-            data = pickle.load(f)
+    pipeline = Pipeline([
+        ("linguistic_union", FeatureUnion(
+            transformer_list = transformer
+        )),
+    ])
 
-        if data_type == "train":
-            embeddings = data["twitter-training-data.txt"]
-        elif data_type == "test":
-            embeddings = data["twitter-test.txt"]
+    return pipeline
 
-        if self.features == None:
-            self.features = embeddings 
-        else:
-            embeddings = sparse.csr_matrix(embeddings)
-            self.features = sparse.hstack((self.features, embeddings))
+
+class Word2VecEmbeddingsTransformer(BaseEstimator, TransformerMixin):
+    def __init__(self, word2vec_path):
+        self.model = gensim.models.KeyedVectors.load_word2vec_format(word2vec_path, binary=True, unicode_errors="ignore")
+        self.num_features = self.model.syn0.shape[1]
+        self.index2word_set = set(self.model.index2word)
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        vecs = []
+
+        for sent in X:
+            feature_vec = np.zeros((self.num_features,), dtype="float32")
+            nwords = 0
+
+            for word in sent:
+                if word != "" and word in self.index2word_set:
+                    nwords += 1
+                    feature_vec = np.add(feature_vec, self.model[word])
+
+            if nwords > 1:
+                feature_vec = np.divide(feature_vec, nwords)
+
+            vecs.append(feature_vec)
+
+        return vecs
+
+
+class LexiconsTransformer(BaseEstimator, TransformerMixin):
+    def __init__(self, X_train, y_train, top_n):
+        # Use this to get the positive and negative lexicons that
+        # will be applied to the test set
+        self.top_n = top_n
+        X_train = [word_tokenize(sent) for sent in X_train]
+        #X_train = list(itertools.chain.from_iterable(X_train))
+        print(len(X_train), len(y_train))
+        X_train_positive = [X_train[i] for i in range(len(X_train)) if y_train[i] == 0]
+        X_train_negative = [X_train[i] for i in range(len(X_train)) if y_train[i] == 1]
+
+        X_train_positive = join_lists(X_train_positive)
+        X_train_negative = join_lists(X_train_negative)
+
+        pos_lexicons = nltk.FreqDist(X_train_positive).most_common(self.top_n)
+        neg_lexicons = nltk.FreqDist(X_train_negative).most_common(self.top_n)
+
+        # Create as a dictionary for efficient indexing when creating the
+        # feature space in transform()
+        self.pos_lexicons = {word[0]: (1, i) for i, word in enumerate(pos_lexicons)}
+        self.neg_lexicons = {word[0]: (1, i) for i, word in enumerate(neg_lexicons)}
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        # Feature space is a (len(X) x 2top_n) array
+        # Element (i, j) of the array is the number of occurrences of lexicon
+        # j in sentence i of the corpus
+        def get_feature_space(sentiment):
+            # Get the feature space for the input sentiment
+            feature_space = np.zeros((len(X), self.top_n))
+            for i, sent in enumerate(X):
+                for word in word_tokenize(sent):
+                    try:
+                        if sentiment == "positive":
+                            val = self.pos_lexicons[word]
+                        elif sentiment == "negative":
+                            val = self.neg_lexicons[word]
+                        counter = val[0]  # val[0] is always 1
+                        position = val[1] # val[1] is the position of the lexicon in the feature space
+                        feature_space[i][position] += counter
+                    except KeyError:
+                        counter = 0
+            return feature_space
+
+        pos_feature_space = get_feature_space(sentiment="positive")
+        neg_feature_space = get_feature_space(sentiment="negative")
+
+        # Concatenate the positive and negative feature spaces to create a
+        # single feature space for the lexicons
+        feature_space = np.hstack((pos_feature_space, neg_feature_space))
+
+        return feature_space
+
+
+class POSTagsTransformer(BaseEstimator, TransformerMixin):
+    def __init__(self):
+        self.dummy = None
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        # The feature space is a (len(X) x n) array, where n is the total number
+        # of POS tags in the corpus
+        # Element (i,j) in array is the number of occurrences of POS tag j in sentence i
+        X_pos = [nltk.pos_tag(sent) for sent in X]
+        all_pos_tags = list(itertools.chain.from_iterable(X_pos))
+        all_pos_tags = list(set([tag[1] for tag in all_pos_tags]))
+        num_pos_tags = len(all_pos_tags)
+
+        pos_tag_feats = { i: { tag: 0 for tag in all_pos_tags } for i in range(len(X)) }
+        for idx in range(len(X_pos)):
+            for tagged_word in X_pos[idx]:
+                tag = tagged_word[1]
+                pos_tag_feats[idx][tag] += 1
+
+        pos_features = [[pos_tag_feats[i][tag] for tag in all_pos_tags] for i in range(len(X))]
+
+        return np.asarray(pos_features)
