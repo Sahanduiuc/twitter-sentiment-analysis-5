@@ -11,6 +11,7 @@ Best classifier: Logistic regression with word2vec embeddings and TF-IDF unigram
 
 Corresponding result: macro-averaged F1-score of 0.649.
 
+Note that the report in the pdf document was written before this result was observed.
 
 # Important points for marker
 
