@@ -1,9 +1,9 @@
 # twitter-sentiment-analysis
-Sentiment triclass classifier for twitter, with predictions of positive, negative, or neutral.
+Sentiment classifier for twitter, with predictions of positive, negative, or neutral.
 
 ### Overview
 
-Training data: 45,101 tweets (tab-separated as tweetID--sentiment--text)
+Training data: 45,101 tweets (tab-separated as tweetID \t sentiment \t text)
 
 Test data: 3,531 tweets (same format)
 
