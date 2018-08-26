@@ -14,7 +14,7 @@ Corresponding result: macro-averaged F1-score of 0.649.
 
 # Important points for marker
 
-I use word2vec Twitter embeddings, pretrained on 400m tweets, which can be found here: https://www.fredericgodin.com/software/
+I use word2vec Twitter embeddings, pretrained on 400m tweets, which can be found here: https://www.fredericgodin.com/software/. The code written handles the word2vec embeddings trained on the GoogleNews dataset.
 
 ### Usage instructions
 
