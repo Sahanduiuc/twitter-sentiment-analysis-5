@@ -20,14 +20,16 @@ I use word2vec Twitter embeddings, pretrained on 400m tweets, which can be found
 
 1. In this repo, download the pre-trained word embeddings using the link above.
 
-2. Run `classification.py`. This will run the best classifier for this dataset. Running this code will run every classifier in the list on line 50. For feature choices, these have to entered as boolean arguments in `feature_pipeline()`. The default feature arguments are:
+2. Run `classification.py`. This will run the best classifier for this dataset. Running this code will run every classifier in the list on line 50. For feature choices, these have to entered as boolean arguments in `feature_pipeline()`. 
 
- a. word2vec = False
- b. lexicons = False 
- c. unigrams = False
- d. bigrams = False 
- e. tfidf_unigrams = False 
- f. tfidf_bigrams = False
+The default feature arguments in `feature_pipeline()` are:
+
+1. word2vec = False
+2. lexicons = False 
+3. unigrams = False
+4. bigrams = False 
+5. tfidf_unigrams = False 
+6. tfidf_bigrams = False
 
 # Files in repo
 
