@@ -1,11 +1,14 @@
-import numpy as np 
-import pickle 
+import numpy as np
+import pickle
 import re
 import sys
 
-from nltk.tokenize import TweetTokenizer
+from nltk.tokenize import TweetTokenizer, word_tokenize
 from nltk.corpus import stopwords
+
 tknzr = TweetTokenizer()
+STOPWORDS = [re.sub("[^A-Za-z0-9 ]+", "", word) for word in stopwords.words("english")]
+
 
 def remove_urls(tweets):
 	'''
@@ -31,11 +34,11 @@ def remove_mentions(tweets, remove=None, replace=None):
 		Removes mentions from tweets, replaces with MENTION
 	'''
 	if replace == True:
-		return [re.sub(r'(@[A-Za-z0-9_]+)', 'MENTION', tweet) for tweet in tweets] 
+		return [re.sub(r'(@[A-Za-z0-9_]+)', 'MENTION', tweet) for tweet in tweets]
 	elif remove == True:
-		return [re.sub(r'(@[A-Za-z0-9_]+)', '', tweet) for tweet in tweets] 
+		return [re.sub(r'(@[A-Za-z0-9_]+)', '', tweet) for tweet in tweets]
 	else:
-		return [re.sub(r'(@[A-Za-z0-9_]+)', 'MENTION', tweet) for tweet in tweets] 
+		return [re.sub(r'(@[A-Za-z0-9_]+)', 'MENTION', tweet) for tweet in tweets]
 
 def remove_hash_symbol(tweets):
 	'''
@@ -52,8 +55,8 @@ def identify_elongations(tweets):
 
 def replace_emojis(tweets):
 	'''
-		Happy emojis: :), (:, :-), (-:, :D, ;) 
-		Sad emojis: :(, ):, :-), (-:, ;(, ); 
+		Happy emojis: :), (:, :-), (-:, :D, ;)
+		Sad emojis: :(, ):, :-), (-:, ;(, );
 	'''
 	tweets = [re.sub(r'(:-?\))|(\(-?:)|(;-?\))|(\(-?;)|(:-?D)|(;-?D)', ' HAPPY_EMOJI ', tweet) for tweet in tweets]
 	tweets = [re.sub(r'(:-?\()|(\)-?:)|(;-?\()|(\)-?;)', ' SAD_EMOJI ', tweet) for tweet in tweets]
@@ -61,7 +64,7 @@ def replace_emojis(tweets):
 
 def lower_case(tweets):
 	'''
-		Lower-cases all words in the tweet 
+		Lower-cases all words in the tweet
 		Does not lower-case words that are all uppercase
 	'''
 	return [tweet.lower() for tweet in tweets]
@@ -74,6 +77,16 @@ def remove_numeric_words(tweets):
 
 def remove_numbers(tweets):
 	return [re.sub(r'[0-9]', '', tweet) for tweet in tweets]
+
+def remove_stopwords(tweets):
+	l = []
+	for tweet in tweets:
+		tweet = [word for word in word_tokenize(tweet) if word not in STOPWORDS]
+		l.append(" ".join(tweet))
+	return l
+
+def tokenize(tweets):
+	return [word_tokenize(tweet) for tweet in tweets]
 
 def preprocess_pipeline(tweets):
 	'''
@@ -89,12 +102,5 @@ def preprocess_pipeline(tweets):
 	tweets = remove_numeric_words(tweets)
 	tweets = remove_numbers(tweets)
 	tweets = reduce_large_spaces(tweets)
+	tweets = remove_stopwords(tweets)
 	return tweets
-
-
-
-
-
-
-
-
